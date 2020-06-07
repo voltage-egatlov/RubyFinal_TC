@@ -1,5 +1,6 @@
-require "nokogiri"
-require "httparty"
+#require "nokogiri"
+#require "httparty"
+
 class Scraper
 
   def initialize
@@ -20,6 +21,10 @@ class Scraper
   end
   def get_revs
     revs=@parse_page.css('.search_results').css('.responsive_search_name_combined').css('.col.search_reviewscore.responsive_secondrow')
+  end
+
+  def perc_off
+    perc=@parse_page.css('.search_results').css('.responsive_search_name_combined').css('.col.search_price_discount_combined.responsive_secondrow').css('.col.search_discount.responsive_secondrow')
   end
 
   def option1(array)
@@ -44,12 +49,14 @@ class Scraper
   prices=scraper.get_prices
   hrefs=scraper.get_href
   revs=scraper.get_revs
+  percs=scraper.perc_off
 
   array_price=[]
   array_discount=[]
   array_title=[]
   array_href=[]
   array_ratings=[]
+  array_percs=[]
 
   prices.each do |price|
     price.children.each do |child|
@@ -77,6 +84,9 @@ class Scraper
     array_ratings.push(rating)
   end
 
+  percs.each do |perc|
+    array_percs.push(perc.text.tr(" \r\n-%", ""))
+  end
   array=[]
 
   (0...array_title.size).each do |i|
@@ -86,8 +96,10 @@ class Scraper
     array_element.push(array_discount[i])
     array_element.push(array_href[i])
     array_element.push(array_ratings[i])
+    array_element.push(array_percs[i])
     array.push(array_element)
   end
+  array = array.sort {|a,b| a[5] <=> b[5]}.reverse
 
   print("Here are the games on sale right now:\n")
   (0...array.size).each do |i|
@@ -100,11 +112,25 @@ class Scraper
   while choice!=-1
     puts "Menu"
     puts "1. Open description of game"
+    puts "2. Sort by "
     puts "-1. Quit"
     print("Enter choice: ")
     choice=gets.chomp.to_i
     if(choice==1)
       scraper.option1(array)
+    elsif(choice ==2)
+      puts "  What will you sort by?"
+      puts "  a. Ratings"
+      puts "  b. Discount (%)"
+      puts "  c. Discount ($)"
+      puts "  d. Price"
+      puts "  e. Cancel"
+      print " Enter choice:"
+      choice_sort=gets.chomp.to_s
+      sorted_array=[]
+      if choice_sort=="a"
+        sorted.sort {|a,b| a[4] <=> b[4]}.reverse
+      end
     end
   end
 end
