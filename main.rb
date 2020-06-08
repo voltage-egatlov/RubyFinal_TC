@@ -1,5 +1,5 @@
-#require "nokogiri"
-#require "httparty"
+require "nokogiri"
+require "httparty"
 
 class Scraper
 
@@ -129,7 +129,9 @@ class Scraper
       choice_sort=gets.chomp.to_s
       sorted_array=[]
       if choice_sort=="a"
-        sorted.sort {|a,b| a[4] <=> b[4]}.reverse
+        sorted_array=array.sort {|a,b| a[4] <=> b[4]}.reverse
+      elsif choice_sort=="b"
+        sorted_array=array.sort {|a,b| a[4] <=> b[4]}.reverse
       end
     end
   end
